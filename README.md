@@ -1,2 +1,2 @@
-# tankgame
-A game named tankbattle.
+# TankAame
+A game named **tank battle**.
