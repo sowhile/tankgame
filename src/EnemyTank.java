@@ -1,3 +1,4 @@
+import java.io.Serializable;
 import java.util.Vector;
 
 /**
@@ -6,36 +7,46 @@ import java.util.Vector;
  * <p>
  * 2022/11/15 11:13
  */
-public class EnemyTank extends Tank implements Runnable {
-    public Vector<Shot> shots = new Vector<>();
+public class EnemyTank extends Tank implements Runnable, Serializable {
+    public Vector<Shot> shots;
+    private Vector<EnemyTank> enemyTanks;
     private static final int ENEMY_STEP = 3;
+
+    public EnemyTank() {
+    }
 
     public EnemyTank(int x, int y, Direct direct) {
         super(x, y, direct);
     }
 
+    public EnemyTank(int x, int y, Direct direct, Vector<EnemyTank> enemyTanks) {
+        super(x, y, direct);
+        this.enemyTanks = enemyTanks;
+        shots = new Vector<>();
+    }
+
     @Override
     public void moveUp() {
         setDirect(Direct.UP);
-        if (super.getY() >= ENEMY_STEP) super.setY(super.getY() - ENEMY_STEP);
+        if (super.getY() >= ENEMY_STEP && !isOverlap()) super.setY(super.getY() - ENEMY_STEP);
     }
 
     @Override
     public void moveDown() {
         setDirect(Direct.DOWN);
-        if (super.getY() <= 700 - ENEMY_STEP - 60) super.setY(super.getY() + ENEMY_STEP);
+        if (super.getY() <= 700 - ENEMY_STEP - 60 && !isOverlap()) super.setY(super.getY() + ENEMY_STEP);
     }
 
     @Override
     public void moveLeft() {
         setDirect(Direct.LEFT);
-        if (super.getX() >= ENEMY_STEP) super.setX(super.getX() - ENEMY_STEP);
+        if (super.getX() >= ENEMY_STEP && !isOverlap()) super.setX(super.getX() - ENEMY_STEP);
     }
 
     @Override
     public void moveRight() {
         setDirect(Direct.RIGHT);
-        if (super.getX() <= 800 - ENEMY_STEP - 60) super.setX(super.getX() + ENEMY_STEP);
+        if (super.getX() <= 800 - ENEMY_STEP - 60 && !isOverlap()) super.setX(super.getX() + ENEMY_STEP);
     }
 
     @Override
@@ -114,6 +125,117 @@ public class EnemyTank extends Tank implements Runnable {
         }
     }
 
+    //判断敌人坦克是否重叠
+    public boolean isOverlap() {
+        switch (this.getDirect()) {
+            case UP:
+                for (int i = 0; i < enemyTanks.size(); i++) {
+                    EnemyTank enemyTank = enemyTanks.get(i);
+                    if (enemyTank == this) break;
+                    if (enemyTank.getDirect() == Direct.UP || enemyTank.getDirect() == Direct.DOWN) {
+                        if (this.getX() >= enemyTank.getX()
+                                && this.getX() <= enemyTank.getX() + 40
+                                && this.getY() >= enemyTank.getY()
+                                && this.getY() <= enemyTank.getY() + 60) return true;
+                        if (this.getX() + 40 >= enemyTank.getX()
+                                && this.getX() + 40 <= enemyTank.getX() + 40
+                                && this.getY() >= enemyTank.getY()
+                                && this.getY() <= enemyTank.getY() + 60) return true;
+                    }
+                    if (enemyTank.getDirect() == Direct.LEFT || enemyTank.getDirect() == Direct.RIGHT) {
+                        if (this.getX() >= enemyTank.getX()
+                                && this.getX() <= enemyTank.getX() + 60
+                                && this.getY() >= enemyTank.getY()
+                                && this.getY() <= enemyTank.getY() + 40) return true;
+                        if (this.getX() + 40 >= enemyTank.getX()
+                                && this.getX() + 40 <= enemyTank.getX() + 60
+                                && this.getY() >= enemyTank.getY()
+                                && this.getY() <= enemyTank.getY() + 40) return true;
+                    }
+                }
+                break;
+            case DOWN:
+                for (int i = 0; i < enemyTanks.size(); i++) {
+                    EnemyTank enemyTank = enemyTanks.get(i);
+                    if (enemyTank == this) break;
+                    if (enemyTank.getDirect() == Direct.UP || enemyTank.getDirect() == Direct.DOWN) {
+                        if (this.getX() >= enemyTank.getX()
+                                && this.getX() <= enemyTank.getX() + 40
+                                && this.getY() + 60 >= enemyTank.getY()
+                                && this.getY() + 60 <= enemyTank.getY() + 60) return true;
+                        if (this.getX() + 40 >= enemyTank.getX()
+                                && this.getX() + 40 <= enemyTank.getX() + 40
+                                && this.getY() + 60 >= enemyTank.getY()
+                                && this.getY() + 60 <= enemyTank.getY() + 60) return true;
+                    }
+                    if (enemyTank.getDirect() == Direct.LEFT || enemyTank.getDirect() == Direct.RIGHT) {
+                        if (this.getX() >= enemyTank.getX()
+                                && this.getX() <= enemyTank.getX() + 60
+                                && this.getY() + 60 >= enemyTank.getY()
+                                && this.getY() + 60 <= enemyTank.getY() + 40) return true;
+                        if (this.getX() + 40 >= enemyTank.getX()
+                                && this.getX() + 40 <= enemyTank.getX() + 60
+                                && this.getY() + 60 >= enemyTank.getY()
+                                && this.getY() + 60 <= enemyTank.getY() + 40) return true;
+                    }
+                }
+                break;
+            case LEFT:
+                for (int i = 0; i < enemyTanks.size(); i++) {
+                    EnemyTank enemyTank = enemyTanks.get(i);
+                    if (enemyTank == this) break;
+                    if (enemyTank.getDirect() == Direct.UP || enemyTank.getDirect() == Direct.DOWN) {
+                        if (this.getX() >= enemyTank.getX()
+                                && this.getX() <= enemyTank.getX() + 40
+                                && this.getY() >= enemyTank.getY()
+                                && this.getY() <= enemyTank.getY() + 60) return true;
+                        if (this.getX() >= enemyTank.getX()
+                                && this.getX() <= enemyTank.getX() + 40
+                                && this.getY() + 40 >= enemyTank.getY()
+                                && this.getY() + 40 <= enemyTank.getY() + 60) return true;
+                    }
+                    if (enemyTank.getDirect() == Direct.LEFT || enemyTank.getDirect() == Direct.RIGHT) {
+                        if (this.getX() >= enemyTank.getX()
+                                && this.getX() <= enemyTank.getX() + 60
+                                && this.getY() >= enemyTank.getY()
+                                && this.getY() <= enemyTank.getY() + 40) return true;
+                        if (this.getX() >= enemyTank.getX()
+                                && this.getX() <= enemyTank.getX() + 60
+                                && this.getY() + 40 >= enemyTank.getY()
+                                && this.getY() + 40 <= enemyTank.getY() + 40) return true;
+                    }
+                }
+                break;
+            case RIGHT:
+                for (int i = 0; i < enemyTanks.size(); i++) {
+                    EnemyTank enemyTank = enemyTanks.get(i);
+                    if (enemyTank == this) break;
+                    if (enemyTank.getDirect() == Direct.UP || enemyTank.getDirect() == Direct.DOWN) {
+                        if (this.getX() + 60 >= enemyTank.getX()
+                                && this.getX() + 60 <= enemyTank.getX() + 40
+                                && this.getY() >= enemyTank.getY()
+                                && this.getY() <= enemyTank.getY() + 60) return true;
+                        if (this.getX() + 60 >= enemyTank.getX()
+                                && this.getX() + 60 <= enemyTank.getX() + 40
+                                && this.getY() + 40 >= enemyTank.getY()
+                                && this.getY() + 40 <= enemyTank.getY() + 60) return true;
+                    }
+                    if (enemyTank.getDirect() == Direct.LEFT || enemyTank.getDirect() == Direct.RIGHT) {
+                        if (this.getX() + 60 >= enemyTank.getX()
+                                && this.getX() + 60 <= enemyTank.getX() + 60
+                                && this.getY() >= enemyTank.getY()
+                                && this.getY() <= enemyTank.getY() + 40) return true;
+                        if (this.getX() + 60 >= enemyTank.getX()
+                                && this.getX() + 60 <= enemyTank.getX() + 60
+                                && this.getY() + 40 >= enemyTank.getY()
+                                && this.getY() + 40 <= enemyTank.getY() + 40) return true;
+                    }
+                }
+                break;
+        }
+        return false;
+    }
+
     //敌方坦克发射行为
     private void shot() {
         Shot shot = getShot();
@@ -122,5 +244,13 @@ public class EnemyTank extends Tank implements Runnable {
         Thread enemyTankShotThread = new Thread(shot);
         enemyTankShotThread.setName("enemyTankShotThread");
         enemyTankShotThread.start();
+    }
+
+    public Vector<EnemyTank> getEnemyTanks() {
+        return enemyTanks;
+    }
+
+    public void setEnemyTanks(Vector<EnemyTank> enemyTanks) {
+        this.enemyTanks = enemyTanks;
     }
 }

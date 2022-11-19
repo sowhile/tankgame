@@ -12,6 +12,8 @@ public class Tank {
     //坦克移动速度
     public final int STEP = 10;
 
+    public Tank() {
+    }
 
     public Tank(int x, int y, Direct direct) {
         this.x = x;

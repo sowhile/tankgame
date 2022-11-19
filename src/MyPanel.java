@@ -23,25 +23,41 @@ public class MyPanel extends JPanel implements KeyListener, Runnable {
     public MyPanel() {
         //设置画布的尺寸
         this.setSize(800, 700);
-        //初始化玩家坦克位置
-        myTank = new MyTank(360, 600, Direct.UP);
-        //初始化敌方坦克
-        enemyTanks = new Vector<>();
-        for (int i = 1; i <= 4; i++) {
-            EnemyTank enemyTank = new EnemyTank(100 + 100 * i, 200, Direct.DOWN);
-            synchronized (this) {
-                enemyTanks.add(enemyTank);
-            }
-            //启动一个敌方坦克线程
-            Thread enemyTankThread = new Thread(enemyTank);
-            enemyTankThread.setName("enemyTankThread");
-            enemyTankThread.start();
-        }
         //初始化爆炸图片
         bombs = new Vector<>();
         image1 = Toolkit.getDefaultToolkit().getImage("src/resource/bomb_1.gif");
         image2 = Toolkit.getDefaultToolkit().getImage("src/resource/bomb_2.gif");
         image3 = Toolkit.getDefaultToolkit().getImage("src/resource/bomb_3.gif");
+        if (Recorder.isLoadGame()) {
+            Recorder.load();
+        } else {        //初始化玩家坦克位置
+            myTank = new MyTank(360, 600, Direct.UP);
+            //初始化敌方坦克
+            enemyTanks = new Vector<>();
+            for (int i = 1; i <= 6; i++) {
+                EnemyTank enemyTank = new EnemyTank(100 + 100 * i, 200, Direct.DOWN, enemyTanks);
+                synchronized (this) {
+                    enemyTanks.add(enemyTank);
+                }
+                //启动一个敌方坦克线程
+                Thread enemyTankThread = new Thread(enemyTank);
+                enemyTankThread.setName("enemyTankThread");
+                enemyTankThread.start();
+            }
+            Recorder.setEnemyTank(enemyTanks);
+            Recorder.setMyTank(myTank);
+        }
+    }
+
+    private void showInfo(Graphics g) {
+        g.setColor(Color.BLACK);
+        g.setFont(new Font("宋体", Font.BOLD, 21));
+        g.drawString("共击毁敌方坦克", 815, 40);
+        drawTank(825, 60, g, Direct.UP, "EnemyTank");
+        g.setColor(Color.BLACK);
+        g.setFont(new Font("微软雅黑", Font.BOLD, 21));
+        g.drawString("x", 895, 95);
+        g.drawString(Integer.toString(Recorder.getDefeatNum()), 935, 95);
     }
 
     @Override
@@ -49,6 +65,7 @@ public class MyPanel extends JPanel implements KeyListener, Runnable {
         super.paint(g);
         //背景
         g.fillRect(0, 0, 800, 700);
+        showInfo(g);
         //画玩家坦克
         if (myTank != null && myTank.isLive()) {
             drawTank(myTank.getX(), myTank.getY(), g, myTank.getDirect(), myTank.getClass().getSimpleName());
@@ -173,7 +190,10 @@ public class MyPanel extends JPanel implements KeyListener, Runnable {
             System.out.println("当前我的子弹数量：" + myTank.shots.size());
         }
         //Esc退出
-        if (e.getKeyCode() == KeyEvent.VK_ESCAPE) System.exit(0);
+        if (e.getKeyCode() == KeyEvent.VK_ESCAPE) {
+            Recorder.save();
+            System.exit(0);
+        }
     }
 
     @Deprecated
@@ -197,7 +217,7 @@ public class MyPanel extends JPanel implements KeyListener, Runnable {
             synchronized (this) {
                 if (myTank != null && myTank.shots.size() != 0) for (int i = 0; i < myTank.shots.size(); i++) {
                     for (int j = 0; j < enemyTanks.size(); j++) {
-                        hitTank(myTank.shots.get(i), enemyTanks.get(j));
+                        if (hitTank(myTank.shots.get(i), enemyTanks.get(j))) Recorder.addDefeatNum();
                     }
                 }
             }

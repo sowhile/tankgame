@@ -1,10 +1,12 @@
+import java.io.Serializable;
+
 /**
  * @author WangDa
  * @version 1.3
  * <p>
  * 2022/11/15 22:02
  */
-public class Shot implements Runnable {
+public class Shot implements Runnable, Serializable {
 
     private int x;
     private int y;

@@ -1,3 +1,4 @@
+import java.io.Serializable;
 import java.util.Vector;
 
 /**
@@ -6,12 +7,13 @@ import java.util.Vector;
  * <p>
  * 2022/11/15 0:14
  */
-public class MyTank extends Tank {
+public class MyTank extends Tank implements Serializable {
     public Vector<Shot> shots;
 
     public MyTank(int x, int y, Direct direct) {
         super(x, y, direct);
         shots = new Vector<>();
+        Recorder.setMyTankShots(shots);
     }
 
     public void shotEnemy() {
